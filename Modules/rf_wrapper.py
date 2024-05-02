@@ -50,8 +50,7 @@ class RF_Model:
         Parameters:
             fpath (string): full path to .joblib file, including file name and extension.
         Returns:
-            True: if successful.
-            False: if unsuccessful.
+            bool: True if successful, False if unsuccessful.
         """
         rf_load = None
         try:
@@ -73,8 +72,7 @@ class RF_Model:
         Parameters:
             fpath (string): full path to .joblib file, including file name and extension.
         Returns:
-            True: if successful.
-            False: if unsuccessful.
+            bool: True if successful, False if unsuccessful.
         """
         sclr_load = None
         try:
