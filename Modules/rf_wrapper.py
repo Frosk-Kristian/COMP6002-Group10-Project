@@ -41,7 +41,7 @@ class RF_Model:
 
     def LoadModel(self, fpath):
         """
-        Function to load a trained model via joblib.
+        Function to load trained model via joblib.
 
         Parameters:
             fpath (string): full path to .joblib file, including file name and extension.
@@ -54,8 +54,9 @@ class RF_Model:
             rf_load = joblib.load(fpath)
         except FileNotFoundError:
             self.__eprint(f"ERROR: the file \'{fpath}\' was not found.")
+            return False
         except:
-            self.__eprint(f"ERROR: an unknown error has occured attempting to call \'joblib.load({fpath})\'")
+            self.__eprint(f"ERROR: an unknown error has occured attempting to call \'joblib.load({fpath})\' while loading random forest model.")
             return False
         else:
             self.rf = rf_load
@@ -63,4 +64,24 @@ class RF_Model:
         return True
 
     def LoadScaler(self, fpath):
-        pass
+        """
+        Function to load scaler via joblib.
+
+        Parameters:
+            fpath (string): full path to .joblib file, including file name and extension.
+        Returns:
+            True: if successful.
+            False: if unsuccessful.
+        """
+        sclr_load = None
+        try:
+            sclr_load = joblib.load(fpath)
+        except FileNotFoundError:
+            self.__eprint(f"ERROR: the file \'{fpath}\' was not found.")
+            return False
+        except:
+            self.__eprint(f"ERROR: an unknown error has occured attempting to call \'joblib.load({fpath})\' while loading scaler.")
+        else:
+            self.sclr = sclr_load
+        
+        return True
