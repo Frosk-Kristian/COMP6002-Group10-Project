@@ -4,8 +4,9 @@ import pandas as pd
 import joblib
 import ipaddress
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import StandardScaler
 
-def Preprocess(dataframe):
+def Preprocess(dataframe: pd.DataFrame):
     """
     Function that performs (relevant) equivalent preprocessing steps on a dataframe to what was performed in training.
 
@@ -29,17 +30,20 @@ def Preprocess(dataframe):
     return out
 
 class RF_Model:
-    def __init__(self, rf = None, sclr = None):
+    """
+    Class that wraps a trained sklearn RandomForestClassifier model.
+    """
+    def __init__(self, rf: RandomForestClassifier = None, sclr: StandardScaler = None):
         self.rf = rf
         self.sclr = sclr
 
     def __eprint(self, *args, **kwargs):
         """
-        Function to print to sys.stderr
+        Private function to print to sys.stderr
         """
         print(*args, file=sys.stderr, **kwargs)
 
-    def LoadModel(self, fpath):
+    def LoadModel(self, fpath: str):
         """
         Function to load trained model via joblib.
 
@@ -60,10 +64,9 @@ class RF_Model:
             return False
         else:
             self.rf = rf_load
-        
-        return True
+            return True
 
-    def LoadScaler(self, fpath):
+    def LoadScaler(self, fpath: str):
         """
         Function to load scaler via joblib.
 
@@ -81,7 +84,26 @@ class RF_Model:
             return False
         except:
             self.__eprint(f"ERROR: an unknown error has occured attempting to call \'joblib.load({fpath})\' while loading scaler.")
+            return False
         else:
             self.sclr = sclr_load
-        
-        return True
+            return True
+    
+    def Predict(self, data: pd.DataFrame):
+        """
+        Predicts the class based on provided dataframe.
+
+        Parameters:
+            data (pandas.Dataframe): data to predict.
+        Returns:
+            ndarray: array of predictions.
+        """
+        X = data[self.rf.feature_names_in_]
+        Y = None
+
+        if self.rf is not None:
+            Y = self.rf.predict(X)
+        else:
+            self.__eprint("ERROR: random forest model is None!")
+
+        return Y
