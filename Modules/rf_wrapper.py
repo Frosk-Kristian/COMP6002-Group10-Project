@@ -5,6 +5,7 @@ import joblib
 import ipaddress
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import GridSearchCV
 
 def Preprocess(dataframe: pd.DataFrame):
     """
@@ -31,10 +32,10 @@ def Preprocess(dataframe: pd.DataFrame):
 
 class RF_Model:
     """
-    Class that wraps a trained sklearn RandomForestClassifier model.
+    Class that wraps a fit sklearn GridSearchCV (random forest classifier).
     """
-    def __init__(self, rf: RandomForestClassifier = None, sclr: StandardScaler = None):
-        self.rf = rf
+    def __init__(self, gs: GridSearchCV = None, sclr: StandardScaler = None):
+        self.gs = gs
         self.sclr = sclr
 
     def __eprint(self, *args, **kwargs):
@@ -43,26 +44,26 @@ class RF_Model:
         """
         print(*args, file=sys.stderr, **kwargs)
 
-    def LoadModel(self, fpath: str):
+    def LoadGridSearch(self, fpath: str):
         """
-        Function to load trained model via joblib.
+        Function to load a fit GridSearchCV via joblib.
 
         Parameters:
             fpath (string): full path to .joblib file, including file name and extension.
         Returns:
             bool: True if successful, False if unsuccessful.
         """
-        rf_load = None
+        gs_load = None
         try:
-            rf_load = joblib.load(fpath)
+            gs_load = joblib.load(fpath)
         except FileNotFoundError:
             self.__eprint(f"ERROR: the file \'{fpath}\' was not found.")
             return False
         except:
-            self.__eprint(f"ERROR: an unknown error has occured attempting to call \'joblib.load({fpath})\' while loading random forest model.")
+            self.__eprint(f"ERROR: an unknown error has occured attempting to call \'joblib.load({fpath})\' during LoadGridSearch().")
             return False
         else:
-            self.rf = rf_load
+            self.gs = gs_load
             return True
 
     def LoadScaler(self, fpath: str):
@@ -97,17 +98,17 @@ class RF_Model:
             ndarray: array of predictions.
             None: in the event of an error.
         """
-        X = data[self.rf.feature_names_in_]
+        X = data[self.gs.feature_names_in_]
         Y = None
 
         if self.sclr is not None:
             try:
                 X = self.sclr.transform(X[X.columns])
             except:
-                self.__eprint("fERROR: an unknown error occured calling \'self.sclr.transform(X[{X.columns}])\' during Predict().")
+                self.__eprint(f"ERROR: an unknown error occured calling \'self.sclr.transform(X[{X.columns}])\' during Predict().")
             else:
-                if self.rf is not None:
-                    Y = self.rf.predict(X)
+                if self.gs is not None:
+                    Y = self.gs.predict(X)
                 else:
                     self.__eprint("ERROR: random forest model is None!")
         else:
