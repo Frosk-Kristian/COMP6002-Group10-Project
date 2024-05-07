@@ -59,8 +59,8 @@ class RF_Model:
         except FileNotFoundError:
             self.__eprint(f"ERROR: the file \'{fpath}\' was not found.")
             return False
-        except:
-            self.__eprint(f"ERROR: an unknown error has occured attempting to call \'joblib.load({fpath})\' during LoadGridSearch().")
+        except Exception as e:
+            self.__eprint(f"ERROR: an unknown error has occured attempting to call \'joblib.load({fpath})\' during LoadGridSearch().", repr(e))
             return False
         else:
             self.gs = gs_load
