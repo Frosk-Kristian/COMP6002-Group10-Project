@@ -20,7 +20,7 @@ def Preprocess(dataframe: pd.DataFrame):
 
     # converts IP addresses to integers
     out['Source IP_int'] = out.apply(lambda x: int (ipaddress.IPv4Address(x[' Source IP'])), axis=1)
-    out['Destination IP_int'] = out.apply(lambda x: int (ipaddress.IPv4Address(x[' Source IP'])), axis=1)
+    out['Destination IP_int'] = out.apply(lambda x: int (ipaddress.IPv4Address(x[' Destination IP'])), axis=1)
 
     # converts date and time values to UNIX timestamps
     out['UnixTimestamp'] = out.apply(lambda x: (pd.to_datetime(x[' Timestamp']).timestamp()), axis=1)
@@ -81,8 +81,8 @@ class RF_Model:
         except FileNotFoundError:
             self.__eprint(f"ERROR: the file \'{fpath}\' was not found.")
             return False
-        except:
-            self.__eprint(f"ERROR: an unknown error has occured attempting to call \'joblib.load({fpath})\' while loading scaler.")
+        except Exception as e:
+            self.__eprint(f"ERROR: an unknown error has occured attempting to call \'joblib.load({fpath})\' while loading scaler.", repr(e))
             return False
         else:
             self.sclr = sclr_load
@@ -106,8 +106,8 @@ class RF_Model:
             if self.sclr is not None:
                 try:
                     X = self.sclr.transform(X[X.columns])
-                except:
-                    self.__eprint(f"ERROR: an unknown error occured calling \'self.sclr.transform(X[{X.columns}])\' during Predict().")
+                except Exception as e:
+                    self.__eprint(f"ERROR: an unknown error occured calling \'self.sclr.transform(X[{X.columns}])\' during Predict().", repr(e))
                     return None
             else:
                 self.__eprint("ERROR: scaler is None!")
@@ -115,8 +115,8 @@ class RF_Model:
         if self.gs is not None:
             try:
                 Y = self.gs.predict(X)
-            except:
-                self.__eprint(f"ERROR: an unknown error occured calling \'self.gs.predict({X})\' during Predict()!")
+            except Exception as e:
+                self.__eprint(f"ERROR: an unknown error occured calling \'self.gs.predict({X})\' during Predict()!", repr(e))
                 return None
         else:
             self.__eprint("ERROR: grid search is None!")
