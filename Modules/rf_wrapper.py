@@ -88,12 +88,13 @@ class RF_Model:
             self.sclr = sclr_load
             return True
     
-    def Predict(self, data: pd.DataFrame):
+    def Predict(self, data: pd.DataFrame, is_scaled: bool = False):
         """
         Predicts the class based on provided dataframe.
 
         Parameters:
             data (pandas.Dataframe): data to predict.
+            is_scaled (bool): whether data has already been normalised, defaults to False.
         Returns:
             ndarray: array of predictions.
             None: in the event of an error.
@@ -101,17 +102,23 @@ class RF_Model:
         X = data[self.gs.feature_names_in_]
         Y = None
 
-        if self.sclr is not None:
-            try:
-                X = self.sclr.transform(X[X.columns])
-            except:
-                self.__eprint(f"ERROR: an unknown error occured calling \'self.sclr.transform(X[{X.columns}])\' during Predict().")
+        if is_scaled is False:
+            if self.sclr is not None:
+                try:
+                    X = self.sclr.transform(X[X.columns])
+                except:
+                    self.__eprint(f"ERROR: an unknown error occured calling \'self.sclr.transform(X[{X.columns}])\' during Predict().")
+                    return None
             else:
-                if self.gs is not None:
-                    Y = self.gs.predict(X)
-                else:
-                    self.__eprint("ERROR: random forest model is None!")
+                self.__eprint("ERROR: scaler is None!")
+        
+        if self.gs is not None:
+            try:
+                Y = self.gs.predict(X)
+            except:
+                self.__eprint(f"ERROR: an unknown error occured calling \'self.gs.predict({X})\' during Predict()!")
+                return None
         else:
-            self.__eprint("ERROR: scaler is None!")
-
+            self.__eprint("ERROR: grid search is None!")
+        
         return Y
