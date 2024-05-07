@@ -95,13 +95,22 @@ class RF_Model:
             data (pandas.Dataframe): data to predict.
         Returns:
             ndarray: array of predictions.
+            None: in the event of an error.
         """
         X = data[self.rf.feature_names_in_]
         Y = None
 
-        if self.rf is not None:
-            Y = self.rf.predict(X)
+        if self.sclr is not None:
+            try:
+                X = self.sclr.transform(X[X.columns])
+            except:
+                self.__eprint("fERROR: an unknown error occured calling \'self.sclr.transform(X[{X.columns}])\' during Predict().")
+            else:
+                if self.rf is not None:
+                    Y = self.rf.predict(X)
+                else:
+                    self.__eprint("ERROR: random forest model is None!")
         else:
-            self.__eprint("ERROR: random forest model is None!")
+            self.__eprint("ERROR: scaler is None!")
 
         return Y
