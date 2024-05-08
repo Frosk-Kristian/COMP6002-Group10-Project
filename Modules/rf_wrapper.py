@@ -99,7 +99,7 @@ class RF_Model:
             ndarray: array of predictions.
             None: in the event of an error.
         """
-        X = data[data.columns]
+        X = data[data.columns] # keeps all features as they are needed by the scaler
         Y = None
 
         if is_scaled is False:
@@ -112,7 +112,7 @@ class RF_Model:
             else:
                 self.__eprint("ERROR: scaler is None!")
         
-        X = X[self.gs.feature_names_in_]
+        X = X[self.gs.feature_names_in_] # uses only the feature names seen by the grid search beyond this point
 
         if self.gs is not None:
             try:
