@@ -148,3 +148,35 @@ class RF_Model:
             self.__eprint("ERROR: value of X is None during Predict()!")
         
         return Y
+
+    def PredictProba(self, data: pd.DataFrame, is_scaled: bool = False):
+        """
+        Predicts the probabilities of each row in a dataframe belonging to each class.
+
+        Parameters:
+            data (pandas.Dataframe): data to predict.
+            is_scaled (bool): whether data has already been normalised, defaults to False.
+        Returns:
+            ndarray: array of predictions along with probabilities of each class.
+            None: in the event of an error.
+        """
+        X = data.copy(deep=True)
+        Y = None
+
+        if is_scaled is False:
+            X = self.__Normalise(X)
+
+        if X is not None:
+            if self.gs is not None:
+                try:
+                    X = X[self.gs.feature_names_in_] # uses only the feature names seen by the grid search beyond this point
+                    Y = self.gs.predict_proba(X)
+                except Exception as e:
+                    self.__eprint(f"ERROR: an unknown error occured calling \'self.gs.predict_proba({X})\' during PredictProba()!\n", repr(e))
+                    return None
+            else:
+                self.__eprint("ERROR: grid search is None!")
+        else:
+            self.__eprint("ERROR: value of X is None during PredictProba()!")
+        
+        return Y
