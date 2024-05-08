@@ -94,6 +94,29 @@ class RF_Model:
             self.sclr.set_output(transform='pandas') # specifies to return a pandas dataframe
             return True
     
+    def __Normalise(self, data: pd.DataFrame):
+        """
+        Private function that calls self.sclr.transform on a pandas dataframe, and returns the transformed dataframe.
+
+        Parameters:
+            data (pd.DataFrame): dataframe to be normalised.
+        Returns:
+            pd.DataFrame: normalised dataframe.
+            None: in the event of an error.
+        """
+        if self.sclr is not None:
+            data_n = data[self.sclr.feature_names_in_] # uses only the feature names seen by the grid search
+            try:
+                data_n = self.sclr.transform(data_n[data_n.columns])
+            except Exception as e:
+                self.__eprint(f"ERROR: an unknown error occured calling \'self.sclr.transform(data_n[{data_n.columns}])\' during self.__Normalise()!\n", repr(e))
+                return None
+            else:
+                return data_n
+        else:
+            self.__eprint("ERROR: scaler is None during self.__Normalise()!")
+            return None
+
     def Predict(self, data: pd.DataFrame, is_scaled: bool = False):
         """
         Predicts the class based on provided dataframe.
@@ -109,24 +132,19 @@ class RF_Model:
         Y = None
 
         if is_scaled is False:
-            if self.sclr is not None:
-                X = X[self.sclr.feature_names_in_] # uses only the feature names seen by the grid search
+            X = self.__Normalise(X)
+
+        if X is not None:
+            if self.gs is not None:
                 try:
-                    X = self.sclr.transform(X[X.columns])
+                    X = X[self.gs.feature_names_in_] # uses only the feature names seen by the grid search beyond this point
+                    Y = self.gs.predict(X)
                 except Exception as e:
-                    self.__eprint(f"ERROR: an unknown error occured calling \'self.sclr.transform(X[{X.columns}])\' during Predict().\n", repr(e))
+                    self.__eprint(f"ERROR: an unknown error occured calling \'self.gs.predict({X})\' during Predict()!\n", repr(e))
                     return None
             else:
-                self.__eprint("ERROR: scaler is None!")
-
-        if self.gs is not None:
-            try:
-                X = X[self.gs.feature_names_in_] # uses only the feature names seen by the grid search beyond this point
-                Y = self.gs.predict(X)
-            except Exception as e:
-                self.__eprint(f"ERROR: an unknown error occured calling \'self.gs.predict({X})\' during Predict()!\n", repr(e))
-                return None
+                self.__eprint("ERROR: grid search is None!")
         else:
-            self.__eprint("ERROR: grid search is None!")
+            self.__eprint("ERROR: value of X is None during Predict()!")
         
         return Y
