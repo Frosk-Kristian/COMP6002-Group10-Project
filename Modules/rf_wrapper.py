@@ -35,8 +35,13 @@ class RF_Model:
     Class that wraps a fit sklearn GridSearchCV (random forest classifier).
     """
     def __init__(self, gs: GridSearchCV = None, sclr: StandardScaler = None):
+        """
+        Constructs a RF_Model object.
+        """
         self.gs = gs
         self.sclr = sclr
+        if self.sclr is not None:
+            self.sclr.set_output(transform='pandas') # specifies to return a pandas dataframe
 
     def __eprint(self, *args, **kwargs):
         """
@@ -86,6 +91,7 @@ class RF_Model:
             return False
         else:
             self.sclr = sclr_load
+            self.sclr.set_output(transform='pandas') # specifies to return a pandas dataframe
             return True
     
     def Predict(self, data: pd.DataFrame, is_scaled: bool = False):
@@ -99,11 +105,12 @@ class RF_Model:
             ndarray: array of predictions.
             None: in the event of an error.
         """
-        X = data[data.columns] # keeps all features as they are needed by the scaler
+        X = data.copy(deep=True)
         Y = None
 
         if is_scaled is False:
             if self.sclr is not None:
+                X = X[self.sclr.feature_names_in_] # uses only the feature names seen by the grid search
                 try:
                     X = self.sclr.transform(X[X.columns])
                 except Exception as e:
@@ -112,10 +119,9 @@ class RF_Model:
             else:
                 self.__eprint("ERROR: scaler is None!")
         
-        X = X[self.gs.feature_names_in_] # uses only the feature names seen by the grid search beyond this point
-
         if self.gs is not None:
             try:
+                X = X[self.gs.feature_names_in_] # uses only the feature names seen by the grid search beyond this point
                 Y = self.gs.predict(X)
             except Exception as e:
                 self.__eprint(f"ERROR: an unknown error occured calling \'self.gs.predict({X})\' during Predict()!\n", repr(e))

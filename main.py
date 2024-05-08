@@ -52,5 +52,5 @@ if __name__ == "__main__":
     print(to_print)
 
     # make predictions
-    # predictions = model.Predict(df_p.drop(columns=[' Label'], inplace=False))
-    # print(predictions)
+    predictions = model.Predict(df_p.drop(columns=[' Label'], inplace=False))
+    print(predictions)
