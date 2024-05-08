@@ -87,5 +87,5 @@ if __name__ == "__main__":
 
     if NoMissingFeatures(df_p, model):
         # make predictions
-        predictions = model.Predict(df_p.drop(columns=[' Label'], inplace=False))
+        predictions = model.Predict(df_p)
         print(predictions)
