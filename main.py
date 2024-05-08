@@ -30,6 +30,11 @@ sclr_names = model.sclr.feature_names_in_
 print(f"WARNING: Labels in Scaler missing from Dataset:\n {list(set(sclr_names).difference(df_p.columns))}")
 print(f"WARNING: Labels in Dataset missing from Scaler:\n {list(set(df_p.columns).difference(sclr_names))}")
 
+to_print = "Feature Order"
+for idx in enumerate(sclr_names):
+    to_print += (f"\n{idx[0]}:\n Scaler: {idx[1]}\n Dataset: {df_p.drop(columns=[' Label'], inplace=False).columns[idx[0]]}")
+print(to_print)
+
 # make predictions
-predictions = model.Predict(df_p.drop(columns=[' Label'], inplace=False))
-print(predictions)
+#predictions = model.Predict(df_p.drop(columns=[' Label'], inplace=False))
+#print(predictions)
