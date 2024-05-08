@@ -23,7 +23,7 @@ def Preprocess(dataframe: pd.DataFrame):
     out['Destination IP_int'] = out.apply(lambda x: int (ipaddress.IPv4Address(x[' Destination IP'])), axis=1)
 
     # converts date and time values to UNIX timestamps
-    out['UnixTimestamp'] = out.apply(lambda x: (pd.to_datetime(x[' Timestamp']).timestamp()), axis=1)
+    out['UnixTimestamp'] = out.apply(lambda x: (pd.to_datetime(x[' Timestamp'], dayfirst=True).timestamp()), axis=1)
 
     # drops the original, unmodified columns
     out.drop(columns = [' Source IP', ' Destination IP', ' Timestamp'], inplace = True)
@@ -118,7 +118,7 @@ class RF_Model:
                     return None
             else:
                 self.__eprint("ERROR: scaler is None!")
-        
+
         if self.gs is not None:
             try:
                 X = X[self.gs.feature_names_in_] # uses only the feature names seen by the grid search beyond this point
