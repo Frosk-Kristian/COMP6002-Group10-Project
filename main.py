@@ -63,17 +63,18 @@ if __name__ == "__main__":
     data_d = os.getcwd() + r"/Data"
     model_dir = os.getcwd() + r"/Models"
     # files
-    sample_fpath = f"{data_d}/finalds_sample.csv"
-    # dataframes
+    syn_fpath = f"{data_d}/SYN.zip"
+    udp_fpath = f"{data_d}/UDP.zip"
     
-    validate_csv_file(sample_fpath)
-
-    df = pd.read_csv(sample_fpath)
+    # dataframes
+    # df = pd.read_csv(syn_fpath, compression='zip')
+    df = pd.read_csv(udp_fpath, compression='zip')
 
     # correct naming errors
     df[" Inbound"] = df["Inbound"]
-    df[" Label"] = df["Label"]
-    df.drop(columns=["Label", "Inbound"], inplace=True)
+    #df[" Label"] = df["Label"]
+    #df.drop(columns=["Label", "Inbound"], inplace=True)
+    df.drop(columns=['Inbound'], inplace=True)
 
     # preprocess
     df_p = Preprocess(df)
