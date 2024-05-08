@@ -60,7 +60,7 @@ class RF_Model:
             self.__eprint(f"ERROR: the file \'{fpath}\' was not found.")
             return False
         except Exception as e:
-            self.__eprint(f"ERROR: an unknown error has occured attempting to call \'joblib.load({fpath})\' during LoadGridSearch().", repr(e))
+            self.__eprint(f"ERROR: an unknown error has occured attempting to call \'joblib.load({fpath})\' during LoadGridSearch().\n", repr(e))
             return False
         else:
             self.gs = gs_load
@@ -82,7 +82,7 @@ class RF_Model:
             self.__eprint(f"ERROR: the file \'{fpath}\' was not found.")
             return False
         except Exception as e:
-            self.__eprint(f"ERROR: an unknown error has occured attempting to call \'joblib.load({fpath})\' while loading scaler.", repr(e))
+            self.__eprint(f"ERROR: an unknown error has occured attempting to call \'joblib.load({fpath})\' while loading scaler.\n", repr(e))
             return False
         else:
             self.sclr = sclr_load
@@ -99,7 +99,7 @@ class RF_Model:
             ndarray: array of predictions.
             None: in the event of an error.
         """
-        X = data[self.gs.feature_names_in_]
+        X = data[data.columns]
         Y = None
 
         if is_scaled is False:
@@ -107,16 +107,18 @@ class RF_Model:
                 try:
                     X = self.sclr.transform(X[X.columns])
                 except Exception as e:
-                    self.__eprint(f"ERROR: an unknown error occured calling \'self.sclr.transform(X[{X.columns}])\' during Predict().", repr(e))
+                    self.__eprint(f"ERROR: an unknown error occured calling \'self.sclr.transform(X[{X.columns}])\' during Predict().\n", repr(e))
                     return None
             else:
                 self.__eprint("ERROR: scaler is None!")
         
+        X = X[self.gs.feature_names_in_]
+
         if self.gs is not None:
             try:
                 Y = self.gs.predict(X)
             except Exception as e:
-                self.__eprint(f"ERROR: an unknown error occured calling \'self.gs.predict({X})\' during Predict()!", repr(e))
+                self.__eprint(f"ERROR: an unknown error occured calling \'self.gs.predict({X})\' during Predict()!\n", repr(e))
                 return None
         else:
             self.__eprint("ERROR: grid search is None!")
