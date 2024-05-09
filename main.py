@@ -68,14 +68,8 @@ if __name__ == "__main__":
     udp_fpath = f"{data_dir}/UDP.zip"
     
     # dataframes
-    # df = pd.read_csv(syn_fpath, compression='zip')
-    df = pd.read_csv(udp_fpath, compression='zip')
-
-    # correct naming errors
-    #df[" Inbound"] = df["Inbound"]
-    #df[" Label"] = df["Label"]
-    #df.drop(columns=["Label", "Inbound"], inplace=True)
-    #df.drop(columns=['Inbound'], inplace=True)
+    df = pd.read_csv(syn_fpath, compression='zip')
+    #df = pd.read_csv(udp_fpath, compression='zip')
 
     # preprocess
     df_p = Preprocess(df)
@@ -92,6 +86,6 @@ if __name__ == "__main__":
         predictions = model.Predict(df_p)
         df['Predicted Label'] = predictions
         # save predictions
-        predict_fname = f"UDP_{pd.Timestamp.today(tz='Australia/Perth').strftime('%d-%m-%Y')}"
+        predict_fname = f"SYN_Unscaled_{pd.Timestamp.today(tz='Australia/Perth').strftime('%d-%m-%Y')}"
         df.to_csv(f"{predict_dir}/{predict_fname}.zip", compression={'method': 'zip', 'archive_name': f'{predict_fname}.csv'}, index=False)
         
