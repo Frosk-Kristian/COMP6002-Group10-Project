@@ -9,7 +9,7 @@ def validate_csv_file(filepath):
         raise ValueError("Invalid file type!")
 
 
-def NoMissingFeatures(dataframe: pd.DataFrame, model: RF_Model):
+def NoMissingFeatures(dataframe: pd.DataFrame, rf: RF_Model):
     """
     Function that takes a pandas dataframe and a RF_Model object, checks if the dataframe is missing features the model requires and returns a boolean.
 
