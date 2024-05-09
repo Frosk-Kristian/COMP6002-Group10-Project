@@ -69,7 +69,7 @@ if __name__ == "__main__":
     
     # dataframes
     # df = pd.read_csv(syn_fpath, compression='zip')
-    df = pd.read_csv(udp_fpath, compression='zip', nrows=5)
+    df = pd.read_csv(udp_fpath, compression='zip')
 
     # correct naming errors
     #df[" Inbound"] = df["Inbound"]
@@ -90,4 +90,8 @@ if __name__ == "__main__":
     if NoMissingFeatures(df_p, model):
         # make predictions
         predictions = model.Predict(df_p)
-        print(predictions)
+        df['Predicted Label'] = predictions
+        # save predictions
+        predict_fname = f"UDP_{pd.Timestamp.today(tz='Australia/Perth').strftime('%d-%m-%Y')}"
+        df.to_csv(f"{predict_dir}/{predict_fname}.zip", compression={'method': 'zip', 'archive_name': f'{predict_fname}.csv'}, index=False)
+        
