@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import joblib
 import ipaddress
+from sklearn.metrics import accuracy_score, f1_score
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import GridSearchCV
@@ -29,6 +30,18 @@ def Preprocess(dataframe: pd.DataFrame):
     out.drop(columns = [' Source IP', ' Destination IP', ' Timestamp'], inplace = True)
 
     return out
+
+def Evaluate(y_true: np.ndarray, y_predict: np.ndarray):
+    """
+    Function that returns the accuracy and f1 score
+    Parameters:
+        y_true (np.ndarray): numpy array of known truths.
+        y_predict (np.ndarray): numpy array of predictions.
+    """
+    out_acc = accuracy_score(y_true=y_true, y_pred=y_predict)
+    out_f1 = f1_score(y_true=y_true, y_pred=y_predict, average="weighted")
+
+    return out_acc, out_f1
 
 class RF_Model:
     """
