@@ -3,7 +3,7 @@ from tkinter import filedialog, messagebox
 import pandas as pd
 import random
 
-from main import main
+from main import predictionFunc
 
 class AttackDetectionApp:
     def __init__(self, root):
@@ -49,14 +49,14 @@ class AttackDetectionApp:
             return
 
         # Placeholder function to predict attacks
-        self.predictions = main(self.data)
+        self.predictions = predictionFunc(self.data)
         self.highlight_predictions()
 
     def highlight_predictions(self):
         self.table.tag_configure("attack", background="red")
 
         for index, prediction in self.predictions.items():
-            if prediction in ['Syn', 'TFTP', 'DrDos_NTP', 'UDP-lag', 'DrDoS_DNS', 'UDPLag', 'MSSQL', 'UDP', 'Portmap', 'NetBIOS', 'DrDoS_UDP', 'DrDoS_MSSQL', 'LDAP', 'WebDDoS', 'DrDoS_SNMP', 'DrDos_NetBIOS']:
+            if prediction in ["DrDoS_SSDP", 'Syn', 'TFTP', 'DrDos_NTP', 'UDP-lag', 'DrDoS_DNS', 'UDPLag', 'MSSQL', 'UDP', 'Portmap', 'NetBIOS', 'DrDoS_UDP', 'DrDoS_MSSQL', 'LDAP', 'WebDDoS', 'DrDoS_SNMP', 'DrDos_NetBIOS']:
                 start = f"{index + 2}.0"
                 end = f"{index + 2}.end"
                 self.table.tag_add("attack", start, end)

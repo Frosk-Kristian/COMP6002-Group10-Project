@@ -9,7 +9,7 @@ def validate_csv_file(filepath):
         raise ValueError("Invalid file type!")
 
 
-def NoMissingFeatures(dataframe: pd.DataFrame, rf: RF_Model):
+def NoMissingFeatures(dataframe: pd.DataFrame, model: RF_Model):
     """
     Function that takes a pandas dataframe and a RF_Model object, checks if the dataframe is missing features the model requires and returns a boolean.
 
@@ -40,7 +40,7 @@ def NoMissingFeatures(dataframe: pd.DataFrame, rf: RF_Model):
             passed = False
     except Exception as e:
         print(
-            f"ERROR: an unknown error has occured calling 'NoMissingFeatures(dataframe={dataframe}, rf={rf})!'.\n",
+            f"ERROR: an unknown error has occured calling 'NoMissingFeatures(dataframe={dataframe}, rf={model})!'.\n",
             repr(e),
         )
         return False
@@ -72,6 +72,29 @@ def ScalerFeatureIdx(dataframe: pd.DataFrame, rf: RF_Model):
             repr(e),
         )
 
+
+def predictionFunc(df: pd.DataFrame) -> dict:
+    df_p = Preprocess(df)
+
+    model_dir = os.getcwd() + r"/Models"
+    model = RF_Model()
+    if model.LoadGridSearch(f"{model_dir}/random_forest.joblib"):
+        print("LoadGridSearch() success!")
+    if model.LoadScaler(f"{model_dir}/std_scaler.joblib"):
+        print("LoadScaler() success!")
+
+    if NoMissingFeatures(df_p, model):
+        # make predictions
+        predictions = model.Predict(df_p)
+        print(predictions)
+
+        result = dict()
+        for idx, pred in enumerate(predictions):
+            result[idx] = pred
+
+        return result
+
+
 if __name__ == "__main__":
     # directories
     data_dir = os.getcwd() + r"/Data"
@@ -80,7 +103,7 @@ if __name__ == "__main__":
     # files
     syn_fpath = f"{data_dir}/SYN.zip"
     udp_fpath = f"{data_dir}/UDP.zip"
-    
+
     # dataframes
     df = pd.read_csv(syn_fpath, compression='zip')
     #df = pd.read_csv(udp_fpath, compression='zip')
@@ -98,8 +121,12 @@ if __name__ == "__main__":
     if NoMissingFeatures(df_p, model):
         # make predictions
         predictions = model.Predict(df_p)
-        df['Predicted Label'] = predictions
+        print(predictions)
+        df["Predicted Label"] = predictions
         # save predictions
         predict_fname = f"SYN_Unscaled_{pd.Timestamp.today(tz='Australia/Perth').strftime('%d-%m-%Y')}"
-        df.to_csv(f"{predict_dir}/{predict_fname}.zip", compression={'method': 'zip', 'archive_name': f'{predict_fname}.csv'}, index=False)
-        
+        df.to_csv(
+            f"{predict_dir}/{predict_fname}.zip",
+            compression={"method": "zip", "archive_name": f"{predict_fname}.csv"},
+            index=False,
+        )
