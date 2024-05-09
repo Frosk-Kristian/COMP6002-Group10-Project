@@ -60,21 +60,22 @@ def ScalerFeatureIdx(dataframe: pd.DataFrame, rf: RF_Model):
 
 if __name__ == "__main__":
     # directories
-    data_d = os.getcwd() + r"/Data"
+    data_dir = os.getcwd() + r"/Data"
+    predict_dir = os.getcwd() + r"/Predictions"
     model_dir = os.getcwd() + r"/Models"
     # files
-    syn_fpath = f"{data_d}/SYN.zip"
-    udp_fpath = f"{data_d}/UDP.zip"
+    syn_fpath = f"{data_dir}/SYN.zip"
+    udp_fpath = f"{data_dir}/UDP.zip"
     
     # dataframes
     # df = pd.read_csv(syn_fpath, compression='zip')
-    df = pd.read_csv(udp_fpath, compression='zip')
+    df = pd.read_csv(udp_fpath, compression='zip', nrows=5)
 
     # correct naming errors
-    df[" Inbound"] = df["Inbound"]
+    #df[" Inbound"] = df["Inbound"]
     #df[" Label"] = df["Label"]
     #df.drop(columns=["Label", "Inbound"], inplace=True)
-    df.drop(columns=['Inbound'], inplace=True)
+    #df.drop(columns=['Inbound'], inplace=True)
 
     # preprocess
     df_p = Preprocess(df)
