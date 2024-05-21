@@ -26,6 +26,8 @@ def Preprocess(dataframe: pd.DataFrame):
     # converts date and time values to UNIX timestamps
     out['UnixTimestamp'] = out.apply(lambda x: (pd.to_datetime(x[' Timestamp'], dayfirst=True).timestamp()), axis=1)
 
+    out['IsDDoS'] = out[' Label'].str.lower() != 'benign'
+
     # drops the original, unmodified columns
     out.drop(columns = [' Source IP', ' Destination IP', ' Timestamp'], inplace = True)
 
@@ -162,6 +164,7 @@ class RF_Model:
         
         return Y
 
+    '''
     def PredictProba(self, data: pd.DataFrame, is_scaled: bool = False):
         """
         Predicts the probabilities of each row in a dataframe belonging to each class.
@@ -193,3 +196,4 @@ class RF_Model:
             self.__eprint("ERROR: value of X is None during PredictProba()!")
         
         return Y
+        '''
