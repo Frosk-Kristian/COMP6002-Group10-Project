@@ -26,7 +26,10 @@ def Preprocess(dataframe: pd.DataFrame):
     # converts date and time values to UNIX timestamps
     out['UnixTimestamp'] = out.apply(lambda x: (pd.to_datetime(x[' Timestamp'], dayfirst=True).timestamp()), axis=1)
 
-    out['IsDDoS'] = out[' Label'].str.lower() != 'benign'
+    if set([' Label']).issubset(out.columns):
+        out['IsDDoS'] = out[' Label'].str.lower() != 'benign'
+    else:
+        out['IsDDoS'] = out['Label'].str.lower() != 'benign'
 
     # drops the original, unmodified columns
     out.drop(columns = [' Source IP', ' Destination IP', ' Timestamp'], inplace = True)
