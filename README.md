@@ -21,6 +21,15 @@ pip install -r requirements.txt
 ```
 
 ## Files & Directories
+* [AttackSimulation](AttackSimulation): subdirectory containing all files used to generate simulated network traffic, self contained and does not rely on anything external to this subdirectory.
+    * [Controller_Updated](AttackSimulation/Controller_Updated):
+        * [Benign_Traffic_Collector.py](AttackSimulation/Controller_Updated/Benign_Traffic_Collector.py): Python script to capture and write packets to a .csv file.
+        * [DDoS_Traffic_Collector.py](AttackSimulation/Controller_Updated/DDoS_Traffic_Collector.py): Python script to capture and write packets to a .csv file.
+        * [My_Switch.py](AttackSimulation/Controller_Updated/My_Switch.py): Python script for simulating switch.
+    * [Mininet_Updated](AttackSimulation/Mininet_Updated):
+        * [Benign_Traffic_Generator.py](AttackSimulation/Mininet_Updated/Benign_Traffic_Generator.py): Python script to generate normal traffic using iperf.
+        * [DDoS_Traffic_Generator.py](AttackSimulation/Mininet_Updated/DDoS_Traffic_Generator.py): Python script to simulate DDoS attacks using hping3.
+        * [Topology.py](AttackSimulation/Mininet_Updated/Topology.py): software defined network topology.
 * [Data](Data): subdirectory containing all data used for making and evaluating predictions.
     * [SYN.zip](Data/SYN.zip): zip archive of generated traffic, featuring benign transmissions and SYN DDoS attacks.
     * [UDP.zip](Data/UDP.zip): zip archive of generated traffic, featuring benign transmissions and UDP DDoS attacks.
