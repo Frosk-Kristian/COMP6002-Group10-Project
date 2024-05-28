@@ -57,7 +57,7 @@ class AttackDetectionApp:
 
         for index, prediction in self.predictions.items():
             #if prediction in ["DrDoS_SSDP", 'Syn', 'TFTP', 'DrDos_NTP', 'UDP-lag', 'DrDoS_DNS', 'UDPLag', 'MSSQL', 'UDP', 'Portmap', 'NetBIOS', 'DrDoS_UDP', 'DrDoS_MSSQL', 'LDAP', 'WebDDoS', 'DrDoS_SNMP', 'DrDos_NetBIOS']:
-            if prediction is True:
+            if prediction ==  True:
                 start = f"{index + 2}.0"
                 end = f"{index + 2}.end"
                 self.table.tag_add("attack", start, end)
