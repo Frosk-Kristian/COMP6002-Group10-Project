@@ -79,7 +79,6 @@ def predictionFunc(df: pd.DataFrame) -> dict:
     if NoMissingFeatures(df_p, model):
         # make predictions
         predictions = model.Predict(df_p)
-        print(predictions)
 
         result = dict()
         for idx, pred in enumerate(predictions):
