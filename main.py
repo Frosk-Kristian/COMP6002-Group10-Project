@@ -1,6 +1,6 @@
 import os
 import pandas as pd
-from Modules.rf_wrapper import RF_Model, Preprocess
+from Modules.rf_wrapper import RF_Model, Preprocess, Evaluate
 
 
 def validate_csv_file(filepath):
@@ -28,15 +28,11 @@ def NoMissingFeatures(dataframe: pd.DataFrame, model: RF_Model):
         gs_missing = list(set(model.gs.feature_names_in_).difference(dataframe.columns))
 
         if sclr_missing:
-            print(
-                f"ERROR: dataframe is missing the following features required by model.sclr:\n {sclr_missing}"
-            )
+            print(f"ERROR: dataframe is missing the following features required by model.sclr:\n {sclr_missing}")
             passed = False
 
         if gs_missing:
-            print(
-                f"ERROR: dataframe is missing the following features required by model.gs:\n {gs_missing}"
-            )
+            print(f"ERROR: dataframe is missing the following features required by model.gs:\n {gs_missing}")
             passed = False
     except Exception as e:
         print(
@@ -67,10 +63,7 @@ def ScalerFeatureIdx(dataframe: pd.DataFrame, rf: RF_Model):
 
         print(to_print)
     except Exception as e:
-        print(
-            f"ERROR: an unknown error has occured calling 'ScalerFeatureIdx(dataframe={dataframe}, rf={rf})'.\n",
-            repr(e),
-        )
+        print(f"ERROR: an unknown error has occured calling 'ScalerFeatureIdx(dataframe={dataframe}, rf={rf})'.\n", repr(e))
 
 
 def predictionFunc(df: pd.DataFrame) -> dict:
@@ -86,7 +79,6 @@ def predictionFunc(df: pd.DataFrame) -> dict:
     if NoMissingFeatures(df_p, model):
         # make predictions
         predictions = model.Predict(df_p)
-        print(predictions)
 
         result = dict()
         for idx, pred in enumerate(predictions):
@@ -105,8 +97,8 @@ if __name__ == "__main__":
     udp_fpath = f"{data_dir}/UDP.zip"
 
     # dataframes
-    df = pd.read_csv(syn_fpath, compression='zip')
-    #df = pd.read_csv(udp_fpath, compression='zip')
+    #df = pd.read_csv(syn_fpath, compression='zip')
+    df = pd.read_csv(udp_fpath, compression='zip')
 
     # preprocess
     df_p = Preprocess(df)
@@ -121,12 +113,10 @@ if __name__ == "__main__":
     if NoMissingFeatures(df_p, model):
         # make predictions
         predictions = model.Predict(df_p)
-        print(predictions)
-        df["Predicted Label"] = predictions
+        pred_accuracy, pred_f1 = Evaluate(df[' Label'].to_numpy(), predictions)
+        print(f"Accuracy: {pred_accuracy}\nF1 Score: {pred_f1}")
+
         # save predictions
-        predict_fname = f"SYN_Unscaled_{pd.Timestamp.today(tz='Australia/Perth').strftime('%d-%m-%Y')}"
-        df.to_csv(
-            f"{predict_dir}/{predict_fname}.zip",
-            compression={"method": "zip", "archive_name": f"{predict_fname}.csv"},
-            index=False,
-        )
+        df["Predicted Label"] = predictions
+        predict_fname = f"UDP_{pd.Timestamp.today(tz='Australia/Perth').strftime('%d-%m-%Y')}"
+        df.to_csv(f"{predict_dir}/{predict_fname}.zip", compression={"method": "zip", "archive_name": f"{predict_fname}.csv"}, index=False)
