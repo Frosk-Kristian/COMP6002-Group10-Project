@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import joblib
 import ipaddress
+from sklearn.metrics import accuracy_score, f1_score
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import GridSearchCV
@@ -25,10 +26,27 @@ def Preprocess(dataframe: pd.DataFrame):
     # converts date and time values to UNIX timestamps
     out['UnixTimestamp'] = out.apply(lambda x: (pd.to_datetime(x[' Timestamp'], dayfirst=True).timestamp()), axis=1)
 
+    if set([' Label']).issubset(out.columns):
+        out['IsDDoS'] = out[' Label'].str.lower() != 'benign'
+    else:
+        out['IsDDoS'] = out['Label'].str.lower() != 'benign'
+
     # drops the original, unmodified columns
     out.drop(columns = [' Source IP', ' Destination IP', ' Timestamp'], inplace = True)
 
     return out
+
+def Evaluate(y_true: np.ndarray, y_predict: np.ndarray):
+    """
+    Function that returns the accuracy and f1 score
+    Parameters:
+        y_true (np.ndarray): numpy array of known truths.
+        y_predict (np.ndarray): numpy array of predictions.
+    """
+    out_acc = accuracy_score(y_true=y_true, y_pred=y_predict)
+    out_f1 = f1_score(y_true=y_true, y_pred=y_predict, average="weighted")
+
+    return out_acc, out_f1
 
 class RF_Model:
     """
@@ -149,6 +167,7 @@ class RF_Model:
         
         return Y
 
+    '''
     def PredictProba(self, data: pd.DataFrame, is_scaled: bool = False):
         """
         Predicts the probabilities of each row in a dataframe belonging to each class.
@@ -180,3 +199,4 @@ class RF_Model:
             self.__eprint("ERROR: value of X is None during PredictProba()!")
         
         return Y
+        '''

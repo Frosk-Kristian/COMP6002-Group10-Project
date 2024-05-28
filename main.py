@@ -1,14 +1,15 @@
 import os
 import pandas as pd
-from Modules.rf_wrapper import RF_Model, Preprocess
+from Modules.rf_wrapper import RF_Model, Preprocess, Evaluate
 
 
 def validate_csv_file(filepath):
     format = filepath.split(".")
-    if format[-1] != "csv":
+    if format[-1] not in ["csv", "zip"]:
         raise ValueError("Invalid file type!")
 
-def NoMissingFeatures(dataframe: pd.DataFrame, rf: RF_Model):
+
+def NoMissingFeatures(dataframe: pd.DataFrame, model: RF_Model):
     """
     Function that takes a pandas dataframe and a RF_Model object, checks if the dataframe is missing features the model requires and returns a boolean.
 
@@ -21,21 +22,27 @@ def NoMissingFeatures(dataframe: pd.DataFrame, rf: RF_Model):
     passed = True
 
     try:
-        sclr_missing = list(set(model.sclr.feature_names_in_).difference(dataframe.columns))
+        sclr_missing = list(
+            set(model.sclr.feature_names_in_).difference(dataframe.columns)
+        )
         gs_missing = list(set(model.gs.feature_names_in_).difference(dataframe.columns))
 
         if sclr_missing:
             print(f"ERROR: dataframe is missing the following features required by model.sclr:\n {sclr_missing}")
             passed = False
-        
+
         if gs_missing:
             print(f"ERROR: dataframe is missing the following features required by model.gs:\n {gs_missing}")
             passed = False
     except Exception as e:
-        print(f"ERROR: an unknown error has occured calling \'NoMissingFeatures(dataframe={dataframe}, rf={rf})!\'.\n", repr(e))
+        print(
+            f"ERROR: an unknown error has occured calling 'NoMissingFeatures(dataframe={dataframe}, rf={model})!'.\n",
+            repr(e),
+        )
         return False
-    
-    return passed    
+
+    return passed
+
 
 def ScalerFeatureIdx(dataframe: pd.DataFrame, rf: RF_Model):
     """
@@ -53,27 +60,45 @@ def ScalerFeatureIdx(dataframe: pd.DataFrame, rf: RF_Model):
 
         for idx in enumerate(sclr_names):
             to_print += f"\n{idx[0]}:\n Scaler: {idx[1]}\n Dataset: {dataframe.drop(columns=[' Label'], inplace=False).columns[idx[0]]}"
-        
+
         print(to_print)
     except Exception as e:
-        print(f"ERROR: an unknown error has occured calling \'ScalerFeatureIdx(dataframe={dataframe}, rf={rf})\'.\n", repr(e))
+        print(f"ERROR: an unknown error has occured calling 'ScalerFeatureIdx(dataframe={dataframe}, rf={rf})'.\n", repr(e))
+
+
+def predictionFunc(df: pd.DataFrame) -> dict:
+    df_p = Preprocess(df)
+
+    model_dir = os.getcwd() + r"/Models"
+    model = RF_Model()
+    if model.LoadGridSearch(f"{model_dir}/random_forest.joblib"):
+        print("LoadGridSearch() success!")
+    if model.LoadScaler(f"{model_dir}/std_scaler.joblib"):
+        print("LoadScaler() success!")
+
+    if NoMissingFeatures(df_p, model):
+        # make predictions
+        predictions = model.Predict(df_p)
+
+        result = dict()
+        for idx, pred in enumerate(predictions):
+            result[idx] = pred
+
+        return result
+
 
 if __name__ == "__main__":
     # directories
-    data_d = os.getcwd() + r"/Data"
+    data_dir = os.getcwd() + r"/Data"
+    predict_dir = os.getcwd() + r"/Predictions"
     model_dir = os.getcwd() + r"/Models"
     # files
-    sample_fpath = f"{data_d}/finalds_sample.csv"
+    syn_fpath = f"{data_dir}/SYN.zip"
+    udp_fpath = f"{data_dir}/UDP.zip"
+
     # dataframes
-    
-    validate_csv_file(sample_fpath)
-
-    df = pd.read_csv(sample_fpath)
-
-    # correct naming errors
-    df[" Inbound"] = df["Inbound"]
-    df[" Label"] = df["Label"]
-    df.drop(columns=["Label", "Inbound"], inplace=True)
+    #df = pd.read_csv(syn_fpath, compression='zip')
+    df = pd.read_csv(udp_fpath, compression='zip')
 
     # preprocess
     df_p = Preprocess(df)
@@ -88,4 +113,10 @@ if __name__ == "__main__":
     if NoMissingFeatures(df_p, model):
         # make predictions
         predictions = model.Predict(df_p)
-        print(predictions)
+        pred_accuracy, pred_f1 = Evaluate(df[' Label'].to_numpy(), predictions)
+        print(f"Accuracy: {pred_accuracy}\nF1 Score: {pred_f1}")
+
+        # save predictions
+        df["Predicted Label"] = predictions
+        predict_fname = f"UDP_{pd.Timestamp.today(tz='Australia/Perth').strftime('%d-%m-%Y')}"
+        df.to_csv(f"{predict_dir}/{predict_fname}.zip", compression={"method": "zip", "archive_name": f"{predict_fname}.csv"}, index=False)
