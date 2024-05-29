@@ -60,7 +60,7 @@ class CollectTrainingStatsApp(My_Switch.AdvancedSwitch):
     @set_ev_cls(ofp_event.EventOFPFlowStatsReply, MAIN_DISPATCHER)
     def _flow_stats_reply_handler(self, ev):
         timestamp = datetime.now().timestamp()
-        file0 = open("FlowStatsfile.csv", "a+")
+        file0 = open("DATASet.csv", "a+")
 
         body = ev.msg.body
         for stat in sorted([flow for flow in body if flow.priority == 1], key=lambda flow: (
